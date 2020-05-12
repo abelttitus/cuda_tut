@@ -9,7 +9,9 @@
 #define MAX_ERR 1e-6
 
 __global__ void vector_add(float* out,float* a,float* b,int n){
-	for(int i=0;i<n;i++){
+	int index = threadIdx.x;
+	int stride = blockDim.x;
+	for(int i=index ; i<n ;i=i+stride){
 		out[i]=a[i]+b[i];
 	}
 	}
@@ -34,7 +36,7 @@ int main(){
 	cudaMemcpy(d_a,a,sizeof(float)*N,cudaMemcpyHostToDevice);
 	cudaMemcpy(d_b,b,sizeof(float)*N,cudaMemcpyHostToDevice);
 
-	vector_add<<<1,1>>>(d_out,d_a,d_b,N);
+	vector_add<<<1,256>>>(d_out,d_a,d_b,N);
 
 	cudaMemcpy(out,d_out,sizeof(float)*N,cudaMemcpyDeviceToHost);
 	    // Verification
